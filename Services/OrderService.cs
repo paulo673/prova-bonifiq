@@ -1,28 +1,33 @@
-﻿using ProvaPub.Models;
+﻿using ProvaPub.Interfaces;
+using ProvaPub.Models;
 
 namespace ProvaPub.Services
 {
 	public class OrderService
 	{
+		private readonly Dictionary<string, IPaymentStrategy> _paymentStrategies;
+		
+		public OrderService(IEnumerable<IPaymentStrategy> paymentStrategies)
+		{
+			_paymentStrategies = paymentStrategies.ToDictionary(
+				strategy => strategy.GetType().Name.ToLower().Replace("paymentstrategy", ""),
+				strategy => strategy
+			);
+		}
+		
 		public async Task<Order> PayOrder(string paymentMethod, decimal paymentValue, int customerId)
 		{
-			if (paymentMethod == "pix")
+			if (!_paymentStrategies.TryGetValue(paymentMethod.ToLower(), out var paymentStrategy))
 			{
-				//Faz pagamento...
-			}
-			else if (paymentMethod == "creditcard")
-			{
-				//Faz pagamento...
-			}
-			else if (paymentMethod == "paypal")
-			{
-				//Faz pagamento...
+				throw new InvalidOperationException("Payment method not supported");
 			}
 
-			return await Task.FromResult( new Order()
+			await paymentStrategy.Pay(paymentValue);
+
+			return new Order
 			{
 				Value = paymentValue
-			});
+			};
 		}
 	}
 }

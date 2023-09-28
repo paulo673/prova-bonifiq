@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using ProvaPub.Interfaces;
+using ProvaPub.Models;
 using ProvaPub.Repository;
 using ProvaPub.Services;
 
@@ -12,8 +14,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<RandomService>();
+builder.Services.AddSingleton<OrderService>();
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddSingleton<IPaymentStrategy, PixPaymentStrategy>();
+builder.Services.AddSingleton<IPaymentStrategy, CreditCardPaymentStrategy>();
+builder.Services.AddSingleton<IPaymentStrategy, PayPalPaymentStrategy>();
+
 builder.Services.AddDbContext<TestDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("ctx")));
 var app = builder.Build();
