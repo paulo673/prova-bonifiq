@@ -366,3 +366,6 @@ FodyWeavers.xsd
 .sonar/
 .sonarqube/
 .scannerwork/
+
+# Rider
+.idea
